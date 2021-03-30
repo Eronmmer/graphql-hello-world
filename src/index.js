@@ -36,27 +36,38 @@ const resolvers = {
 		hello: () => "hello world",
 	},
 	Mutation: {
-		register: (parent, args, context, info) => ({
-			// args above is how to use an argument in a resolver
-			// The args argument is an object that contains all GraphQL arguments that were provided for the field by the GraphQL operation.
-			user: {
-				id: 23,
-				username: args.userInfo.username,
-			},
-			errors: [
-				{
-					message: "Name is required",
-					field: "name",
+		register: (parent, args, context, info) => {
+			console.log(context);
+			return {
+				// args above is how to use an argument in a resolver
+				// The args argument is an object that contains all GraphQL arguments that were provided for the field by the GraphQL operation.
+
+				user: {
+					id: 23,
+					username: args.userInfo.username,
 				},
-				{
-					message: "Username is already taken",
-					field: "username",
-				},
-			],
-		}),
+				errors: [
+					{
+						message: "Name is required",
+						field: "name",
+					},
+					{
+						message: "Username is already taken",
+						field: "username",
+					},
+				],
+			};
+		}
 	},
 };
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+	typeDefs,
+	resolvers,
+	context: ({ req, res }) => ({
+		req,
+		res,
+	}),
+});
 
 server.listen().then(({ url }) => console.log(`Server started at ${url}`));
